@@ -33,14 +33,24 @@ import { Stack } from '@chakra-ui/react'
 import { Divider } from '@chakra-ui/react'
 import { Card, CardHeader, CardBody, CardFooter } from '@chakra-ui/react'
 import { useState } from 'react'
-import { DeleteTask } from './DeleteTask'
+// import { DeleteTask } from './DeleteTask'
 
 export function CreateTask() {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const {
+    isOpen: isCreateOpen,
+    onOpen: onCreateOpen,
+    onClose: onCreateClose,
+  } = useDisclosure()
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose,
+  } = useDisclosure()
   const [task, setTask] = useState('')
   const [plan, setPlan] = useState<string[]>([])
-  const [time, setTime] = useState<number>(0)
+  const [time, setTime] = useState<number | undefined>(undefined)
   const [plantime, setPlantime] = useState<number[]>([])
+  const [edit, setEdit] = useState<string[]>([])
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTime(Number(e.target.value))
@@ -57,12 +67,26 @@ export function CreateTask() {
   const handleCreate = () => {
     setPlan([...plan, task])
     setPlantime([...plantime, time])
-    setTime(0)
+    setTime(undefined)
     setTask('')
-    onClose()
+    onCreateClose()
   }
 
-  const handleEdit = () => {}
+  const [currentEditIndex, setCurrentEditIndex] = useState<number | null>(null)
+  const [editPlanName, setEditPlanName] = useState('')
+  const [editPlanTime, setEditPlanTime] = useState<number>(0)
+  const handleSave = () => {
+    if (currentEditIndex !== null) {
+      const updatedPlans = [...plan]
+      updatedPlans[currentEditIndex] = editPlanName
+      setPlan(updatedPlans)
+
+      const updatedPlanTimes = [...plantime]
+      updatedPlanTimes[currentEditIndex] = editPlanTime
+      setPlantime(updatedPlanTimes)
+    }
+    onEditClose()
+  }
 
   // useState<string[]> = useState + <string[]>
   // <string[]> = data type: string & It is an array
@@ -72,10 +96,14 @@ export function CreateTask() {
 
   return (
     <>
-      <Button onClick={onOpen} leftIcon={<AddIcon />} colorScheme="blue">
+      <Button onClick={onCreateOpen} leftIcon={<AddIcon />} colorScheme="blue">
         Add New Plan
       </Button>
-      <Modal blockScrollOnMount={false} isOpen={isOpen} onClose={onClose}>
+      <Modal
+        blockScrollOnMount={false}
+        isOpen={isCreateOpen}
+        onClose={onCreateClose}
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>New Plan</ModalHeader>
@@ -92,7 +120,7 @@ export function CreateTask() {
                 <Text>The Expected Time</Text>
                 <Input
                   placeholder="how long"
-                  value={time}
+                  value={time !== undefined ? time : ''}
                   onChange={handleTimeChange}
                 />
               </Stack>
@@ -103,36 +131,59 @@ export function CreateTask() {
             <Button colorScheme="blue" mr={3} onClick={handleCreate}>
               Create
             </Button>
-            <Button colorScheme="red" onClick={onClose} variant="ghost">
+            <Button colorScheme="red" onClick={onCreateClose} variant="ghost">
               Cancel
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
-
+      <Modal isOpen={isEditOpen} onClose={onEditClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Plan</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Stack spacing={3}>
+              <Text>Plan Name</Text>
+              <Input
+                value={editPlanName}
+                onChange={(e) => setEditPlanName(e.target.value)}
+              />
+              <Text>Expected Time</Text>
+              <Input
+                type="number"
+                value={editPlanTime}
+                onChange={(e) => setEditPlanTime(Number(e.target.value))}
+              />
+            </Stack>
+          </ModalBody>
+          <ModalFooter>
+            <HStack spacing={3}>
+              <Button colorScheme="blue" onClick={handleSave}>
+                Save
+              </Button>
+              <Button colorScheme="red" onClick={onEditClose}>
+                Cancel
+              </Button>
+            </HStack>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       <Box mt={4}>
-        <List spacing={3}>
+        <List display="flex" flexDirection="row">
           {plan.map((p, index) => {
             const time = plantime[index]
             return (
-              <ListItem key={index}>
+              <ListItem key={index} mr={3}>
                 <Card>
                   <CardBody>
-                    <HStack spacing={3}>
-                      <Stack spacing={2}>
-                        <Heading as="h4" size="md">
-                          Plan Name {index + 1}
-                        </Heading>
-                        <Text>{p}</Text>
-                      </Stack>
-                      <Stack spacing={2}>
-                        {' '}
-                        <Heading as="h4" size="md">
-                          Expected Time
-                        </Heading>
-                        <Text>{time} hours</Text>
-                      </Stack>
-                    </HStack>
+                    <Stack spacing={2}>
+                      <Heading as="h4" size="md">
+                        Plan Name {index + 1}
+                      </Heading>
+                      <Text>{p}</Text>
+                      <Text fontSize="sm">{time} hours</Text>
+                    </Stack>
                   </CardBody>
                   <Divider />
                   <CardFooter>
@@ -141,7 +192,12 @@ export function CreateTask() {
                       <IconButton
                         aria-label="Edit Plan"
                         icon={<EditIcon />}
-                        onClick={() => handleDelete(index)}
+                        onClick={() => {
+                          setCurrentEditIndex(index)
+                          setEditPlanName(plan[index])
+                          setEditPlanTime(plantime[index])
+                          onEditOpen()
+                        }}
                         colorScheme="green"
                       />
                       <Spacer />
