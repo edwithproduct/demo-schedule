@@ -65,11 +65,15 @@ export function CreateTask() {
   }
 
   const handleCreate = () => {
-    setPlan([...plan, task])
-    setPlantime([...plantime, time])
-    setTime(undefined)
-    setTask('')
-    onCreateClose()
+    if (task && time !== undefined) {
+      setPlan((prevPlan) => [...prevPlan, task])
+      setPlantime((prevPlantime) => [...prevPlantime, time])
+      setTime(undefined)
+      setTask('')
+      onCreateClose()
+    } else {
+      console.log('Task or time is invalid')
+    }
   }
 
   const [currentEditIndex, setCurrentEditIndex] = useState<number | null>(null)
