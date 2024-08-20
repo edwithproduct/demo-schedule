@@ -2,9 +2,9 @@
 import NavLink from '@/app/ui/NavLink'
 import Burger from '@/app/ui/burger'
 import { NavBar } from '../../ui/NavBar'
-import { Intro } from '../../ui/intro'
+// import { Intro } from '../../ui/intro'
 import { CreateTask } from '@/app/ui/CreateTask'
-import { CreateLine } from '@/app/ui/CreateLine'
+// import { CreateLine } from '@/app/ui/CreateLine'
 import { ChakraProvider } from '@chakra-ui/react'
 export default function Product() {
   return (
@@ -48,6 +48,8 @@ export default function Product() {
                   <CreateTask />
                   {/* 預計會實作時程長度可視化的功能 */}
                   {/* <CreateLine /> */}
+                  {/* TODO: Add "Order by Date" Feature */}
+                  {/* TODO: Add Tag for each tasks */}
                 </div>
                 {/* <div>
                   <DeleteTask />
