@@ -65,7 +65,7 @@ export default function Home() {
             text-sm
             text-xl/6 lg:text-5xl/[60px]`}
           >
-            I'M A PRODUCT MANAGER IN ONEDEGREE AND A WRITER ON THREADS.
+            I AM A PRODUCT MANAGER IN ONEDEGREE AND A WRITER ON THREADS.
           </h1>
           <div className="w-4/5">
             <p className="pb-2 sm:text-sm md:text-sm lg:text-xl">
